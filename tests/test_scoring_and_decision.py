@@ -20,3 +20,23 @@ def test_score_is_capped_when_multiple_signals_exceed_limit():
 
     assert result.score == 100
     assert result.level == RiskLevel.CRITICAL
+
+def test_approve_boundary():
+    assert (
+        DecisionEngine().decide(49)
+        == RiskDecision.APPROVE
+    )
+
+
+def test_review_lower_boundary():
+    assert (
+        DecisionEngine().decide(50)
+        == RiskDecision.REVIEW
+    )
+
+
+def test_decline_lower_boundary():
+    assert (
+        DecisionEngine().decide(80)
+        == RiskDecision.DECLINE
+    )
