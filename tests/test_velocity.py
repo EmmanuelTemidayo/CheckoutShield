@@ -71,3 +71,19 @@ class VelocityService:
         self.time_window = time_window_seconds
         self.max_attempts = max_attempts
         self._clock = clock
+
+
+@pytest.mark.asyncio
+async def test_concurrent_requests_respect_velocity_limit():
+
+    service = VelocityService(
+        max_attempts=1
+    )
+
+    results = await asyncio.gather(
+        service.check_and_record("merchant:customer"),
+        service.check_and_record("merchant:customer"),
+    )
+
+    assert results.count(True) == 1
+    assert results.count(False) == 1
