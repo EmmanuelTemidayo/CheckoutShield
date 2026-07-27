@@ -58,3 +58,16 @@ async def test_velocity_can_be_reset():
     assert await service.check_and_record(
         "merchant:customer"
     ) is True
+
+class VelocityService:
+
+    def __init__(
+        self,
+        time_window_seconds: int = 60,
+        max_attempts: int = 5,
+        clock=time.monotonic,
+    ) -> None:
+
+        self.time_window = time_window_seconds
+        self.max_attempts = max_attempts
+        self._clock = clock
