@@ -53,3 +53,32 @@ def test_risk_check_returns_decision():
     assert "risk_level" in body
     assert "decision" in body
     assert "reasons" in body
+
+
+def test_idempotent_retry_returns_same_request_id():
+
+    payload = _valid_payload()
+
+    headers = {
+        "Idempotency-Key": "performance-idempotency"
+    }
+
+    first = client.post(
+        "/v1/risk/check",
+        json=payload,
+        headers=headers,
+    )
+
+    second = client.post(
+        "/v1/risk/check",
+        json=payload,
+        headers=headers,
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+
+    assert (
+        second.json()["request_id"]
+        == first.json()["request_id"]
+    )
