@@ -82,3 +82,30 @@ def test_idempotent_retry_returns_same_request_id():
         second.json()["request_id"]
         == first.json()["request_id"]
     )
+
+
+def test_idempotency_conflict_returns_409():
+
+    payload = _valid_payload()
+
+    headers = {
+        "Idempotency-Key": "conflict-test"
+    }
+
+    first = client.post(
+        "/v1/risk/check",
+        json=payload,
+        headers=headers,
+    )
+
+    changed_payload = _valid_payload()
+    changed_payload["payment"]["amount"] = 500
+
+    second = client.post(
+        "/v1/risk/check",
+        json=changed_payload,
+        headers=headers,
+    )
+
+    assert first.status_code == 200
+    assert second.status_code == 409
