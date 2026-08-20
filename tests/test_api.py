@@ -109,3 +109,30 @@ def test_idempotency_conflict_returns_409():
 
     assert first.status_code == 200
     assert second.status_code == 409
+
+def test_risk_check_persists_and_returns_decision():
+
+    payload = _valid_payload()
+
+    response = client.post(
+        "/v1/risk/check",
+        json=payload,
+    )
+
+    assert response.status_code == 200
+
+    body = response.json()
+
+    assert body["risk_score"] == 0
+    assert body["risk_level"] == "LOW"
+    assert body["decision"] == "APPROVE"
+    assert body["reasons"] == []
+
+    request_id = body["request_id"]
+
+    retrieved = client.get(
+        f"/v1/risk/decisions/{request_id}"
+    )
+
+    assert retrieved.status_code == 200
+    assert retrieved.json() == body
