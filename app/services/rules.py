@@ -67,24 +67,3 @@ def evaluate_rules(
     return results
 
 
-def check_country_mismatch(
-    request: RiskCheckRequest,
-    config: RiskRuleConfig | None = None,
-) -> RiskSignal | None:
-
-    config = config or RiskRuleConfig()
-
-    bin_country = request.payment.bin_country
-    shipping_country = request.shipping.country
-
-    if (
-        bin_country
-        and bin_country != shipping_country
-    ):
-        return RiskSignal(
-            "COUNTRY_MISMATCH",
-            config.country_mismatch_score,
-            "Payment country differs from shipping country",
-        )
-
-    return None
