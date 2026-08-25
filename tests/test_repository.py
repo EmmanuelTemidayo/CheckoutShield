@@ -29,3 +29,25 @@ def test_recent_limit_returns_requested_number():
         "request-4",
         "request-3",
     ]
+def test_repository_retains_most_recent_records():
+
+    repository = InMemoryAssessmentRepository()
+
+    for index in range(3):
+        repository.save(
+            "merchant",
+            f"checkout-{index}",
+            result(f"request-{index}"),
+        )
+
+    recent = repository.list_recent(
+        limit=2
+    )
+
+    assert [
+        item.request_id
+        for item in recent
+    ] == [
+        "request-2",
+        "request-1",
+    ]
